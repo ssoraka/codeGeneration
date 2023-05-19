@@ -5,7 +5,9 @@ import my.processor.MyAnnotation;
 @MyAnnotation
 public class Test {
 
-    @MyAnnotation
+    private int value;
+
+//    @MyAnnotation
     public static void main(String[] args) {
 
     }
