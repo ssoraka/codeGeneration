@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
@@ -102,8 +103,6 @@ public class MyProcessor extends AbstractProcessor {
             Tree tree = trees.getTree(element);
             tree.accept(objectObjectTreeVisitor, null);
 
-            BindViewVisitor bindViewVisitor = new BindViewVisitor(processingEnv, element);
-
 //            final JavacProcessingEnvironment javacEnv = (JavacProcessingEnvironment) processingEnv1;
 //            mTreeMaker = TreeMaker.instance(javacEnv.getContext());
 
@@ -120,7 +119,8 @@ public class MyProcessor extends AbstractProcessor {
     private String getSourceCode(Element typeElement) {
         // Use the obtained source code as needed
         try {
-            return Files.readString(Path.of(elementUtils.getFileObjectOf(typeElement).toUri()));
+//            return null;
+            return Files.readString(Path.of(elementUtils.getFileObjectOf(typeElement).toUri()), StandardCharsets.UTF_8);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

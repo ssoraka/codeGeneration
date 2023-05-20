@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>processorApply</module>
+        <module>processor</module>
     </modules>
 
     <properties>
