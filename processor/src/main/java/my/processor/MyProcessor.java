@@ -103,6 +103,7 @@ public class MyProcessor extends AbstractProcessor {
             Tree tree = trees.getTree(element);
             tree.accept(objectObjectTreeVisitor, null);
 
+
 //            final JavacProcessingEnvironment javacEnv = (JavacProcessingEnvironment) processingEnv1;
 //            mTreeMaker = TreeMaker.instance(javacEnv.getContext());
 
