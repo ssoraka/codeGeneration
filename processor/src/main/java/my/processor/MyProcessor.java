@@ -3,7 +3,14 @@ package my.processor;
 import com.sun.source.tree.*;
 import com.sun.source.util.SimpleTreeVisitor;
 import com.sun.source.util.Trees;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -48,40 +55,102 @@ public class MyProcessor extends AbstractProcessor {
                 TypeElement typeElement = (TypeElement) element;
                 // Get the source code and parse it with Eclipse JDT ASTParser
                 String sourceCode = getSourceCode(element);
+
+                Document document = new Document(sourceCode);
+
                 ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+                parser.setResolveBindings(true);
+                parser.setKind(ASTParser.K_COMPILATION_UNIT);
+                parser.setBindingsRecovery(true);
                 parser.setSource(sourceCode.toCharArray());
                 CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 
-                // Modify the AST as needed
-                // For example, add a new method declaration
-                AST ast = AST.newAST(AST.getJLSLatest(), true);
 
-                // Create a new method declaration
-                MethodDeclaration newMethod = ast.newMethodDeclaration();
-                newMethod.setName(ast.newSimpleName("myMethod"));
-                newMethod.setReturnType2(ast.newPrimitiveType(PrimitiveType.VOID));
-                // Set any other properties of the new method
+                compilationUnit.accept(new ASTVisitor() {
 
-                // Add the method to the class body
-                TypeDeclaration typeDeclaration2 = ast.newTypeDeclaration();
-                typeDeclaration2.bodyDeclarations().add(newMethod);
 
-                // Create a compilation unit and set the modified type declaration
-                CompilationUnit compilationUnit2 = ast.newCompilationUnit();
-                compilationUnit.types().add(typeDeclaration2);
+                    @Override
+                    public boolean visit(CompilationUnit node) {
+//                        Expression newArgument = node.getAST().newSimpleName("newArgument");
+                        return super.visit(node);
+                    }
 
-                // Set properties of the new method
-                // ...
-                // Add the new method to the class body
-                TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().get(0);
-                typeDeclaration.bodyDeclarations().add(newMethod);
+                    @Override
+                    public boolean visit(FieldDeclaration node) {
+                        if (Flags.isPrivate(node.getFlags())) {
+                            ChildListPropertyDescriptor modifiersProperty = node.getModifiersProperty();
 
-                // Generate the modified code
-                String modifiedCode = compilationUnit.toString();
+//                            int flag = (node.getFlags() & ~Flags.AccPrivate) | Flags.AccPublic;
+                            node.setFlags(Flags.AccPublic);
+                        }
+                        return super.visit(node);
+                    }
 
-                // Output the modified code for verification
-//                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, modifiedCode);
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, compilationUnit2.toString());
+                    @Override
+                    public boolean visit(VariableDeclarationExpression node) {
+                        return super.visit(node);
+                    }
+
+                    @Override
+                    public boolean visit(VariableDeclarationFragment node) {
+                        node.getName().setIdentifier("var");
+                        return super.visit(node);
+                    }
+
+                    @Override
+                    public boolean visit(MethodDeclaration node) {
+                        AST ast = node.getAST();
+                        MethodInvocation methodInvocation = ast.newMethodInvocation();
+
+                        QualifiedName qName = ast.newQualifiedName(ast.newSimpleName("System"), ast.newSimpleName("out"));
+                        methodInvocation.setExpression(qName);
+                        methodInvocation.setName(ast.newSimpleName("println"));
+
+                        StringLiteral literal = ast.newStringLiteral();
+                        literal.setLiteralValue("Hello, World");
+                        methodInvocation.arguments().add(literal);
+
+                        // Append the statement
+                        node.getBody().statements().add(ast.newExpressionStatement(methodInvocation));
+
+                        return super.visit(node);
+                    }
+                });
+
+
+
+
+
+
+                try {
+
+
+                    ASTRewrite rewrite = ASTRewrite.create(compilationUnit.getAST());
+//                    rewrite.
+                    TextEdit edits = rewrite.rewriteAST(document, null);
+//https://www.immagic.com/eLibrary/ARCHIVES/GENERAL/ECLPS_CA/E050627I.pdf
+                    edits.apply(document);
+
+                    System.out.println(document.get());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+
+//                compilationUnit.accept(new ASTVisitor() {
+//                    @Override
+//                    public boolean visit(MethodInvocation node) {
+//                        // Check if the method invocation matches your criteria for modification
+//                        if (node.getName().getIdentifier().equals("main")) {
+//                            // Modify the arguments of the method invocation
+//                            Expression newArgument = compilationUnit.getAST().newSimpleName("newArgument");
+//                            node.arguments().add(newArgument);
+//                        }
+//                        return super.visit(node);
+//                    }
+//                });
+
+
             }
 
 
