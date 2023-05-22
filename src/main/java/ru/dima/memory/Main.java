@@ -66,7 +66,7 @@ public class Main {
         method.invoke(null);
     }
 
-    public static void main2(String[] args) throws Exception {
+    public static void main2z(String[] args) throws Exception {
         String code = "public class HelloWorld { public static void main(String[] args) { System.out.println(\"Hello, World!\"); } }";
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
