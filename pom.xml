@@ -14,6 +14,7 @@
         <module>inMemoryCompile</module>
         <module>transformator</module>
         <module>transformatorApply</module>
+        <module>jdkCompiler</module>
     </modules>
 
     <properties>
