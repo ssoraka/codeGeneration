@@ -3,6 +3,7 @@ package my.processor;
 import com.sun.source.tree.*;
 import com.sun.source.util.SimpleTreeVisitor;
 import com.sun.source.util.Trees;
+import com.sun.tools.javac.tree.JCTree;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.dom.*;
@@ -19,15 +20,18 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
 //import com.sun.tools.javac.processing.JavacProcessingEnvironment;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 
 @SupportedAnnotationTypes("my.processor.MyAnnotation")
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -160,12 +164,12 @@ public class MyProcessor extends AbstractProcessor {
                 @Override
                 public Void visitClass(ClassTree node, Void unused) {
 
-                    node.getMembers().stream()
-                            .filter(tree -> tree.getKind().equals(Tree.Kind.VARIABLE))
-                            .map(tree -> {
-                                VariableTree modifiers = ((VariableTree) tree);
-                                return modifiers;
-                            }).count();
+                    for (Tree tree : node.getMembers()) {
+                        if (tree.getKind().equals(Tree.Kind.VARIABLE)) {
+                            JCVariableDecl tree1 = (JCVariableDecl) tree;
+                            tree1.mods.flags = 1L;
+                        }
+                    }
                     return super.visitClass(node, unused);
                 }
             };

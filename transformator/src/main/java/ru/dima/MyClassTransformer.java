@@ -14,7 +14,7 @@ public class MyClassTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         try {
             // Transform only specific classes
-            if (className.equals("my/example/Test")) {
+            if (className.equals("example/Test")) {
                 // Use a bytecode manipulation library like Javassist
                 ClassPool classPool = ClassPool.getDefault();
                 CtClass ctClass = classPool.get(className.replace("/", "."));

@@ -12,6 +12,8 @@
         <module>processorApply</module>
         <module>processor</module>
         <module>inMemoryCompile</module>
+        <module>transformator</module>
+        <module>transformatorApply</module>
     </modules>
 
     <properties>

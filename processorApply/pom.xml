@@ -9,20 +9,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>groupId</groupId>-->
-<!--            <artifactId>processor</artifactId>-->
-<!--            <version>1.0-SNAPSHOT</version>-->
-<!--            <scope>provided</scope>-->
-<!--            <optional>true</optional>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>groupId</groupId>
-            <artifactId>transformator</artifactId>
+            <artifactId>processor</artifactId>
             <version>1.0-SNAPSHOT</version>
-<!--            <scope>provided</scope>-->
-<!--            <optional>true</optional>-->
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -35,17 +27,30 @@
 
     <build>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>exec-maven-plugin</artifactId>-->
-<!--                <version>3.1.0</version>-->
-<!--                <configuration>-->
-<!--                    <mainClass>&lt;!&ndash; Your main class here &ndash;&gt;</mainClass>-->
-<!--                    <arguments>-->
-<!--                        <argument>-javaagent:transformator.jar</argument>-->
-<!--                    </arguments>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <fork>true</fork>
+                    <source>11</source>
+                    <target>11</target>
+                    <compilerArgs>
+<!--                        <arg>-parameters</arg>-->
+<!--                        <arg>-Xlint:all,-processing,-cast,-serial</arg>-->
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                        <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
 
 <!--            <plugin>-->
 <!--                <groupId>org.apache.maven.plugins</groupId>-->
