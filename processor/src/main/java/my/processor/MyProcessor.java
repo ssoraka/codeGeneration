@@ -3,10 +3,15 @@ package my.processor;
 import com.sun.source.tree.*;
 import com.sun.source.util.SimpleTreeVisitor;
 import com.sun.source.util.Trees;
+import com.sun.tools.javac.api.JavacTrees;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.model.JavacElements;
+import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeMaker;
+import com.sun.tools.javac.util.Name;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -24,6 +29,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 //import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,24 +43,47 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class MyProcessor extends AbstractProcessor {
 
-    private Elements elementUtils;
+    private JavacElements elementUtils;
+    private JavacProcessingEnvironment javacProcessingEnv;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        elementUtils = processingEnv.getElementUtils();
+        elementUtils = (JavacElements)processingEnv.getElementUtils();
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for (Element element : roundEnv.getElementsAnnotatedWith(MyAnnotation.class)) {
             // Generate code programmatically
-            ProcessingEnvironment processingEnv1 = processingEnv;
-            Trees trees = Trees.instance(processingEnv1);
-            Object object = element.getEnclosingElement();
 
 
+            if (processingEnv instanceof JavacProcessingEnvironment) {
+                javacProcessingEnv = (JavacProcessingEnvironment) processingEnv;
+            } else {
+                throw new RuntimeException("JavacProcessingEnvironment not available.");
+            }
 
+            TreeMaker treeMaker = TreeMaker.instance(javacProcessingEnv.getContext());
+            JavacTrees trees = (JavacTrees)Trees.instance(processingEnv);
+
+            Name fieldName = elementUtils.getName("newField");
+            Name fieldType = elementUtils.getName("Integer");
+            JCTree.JCVariableDecl newField = treeMaker.VarDef(treeMaker.Modifiers(Flags.AccPrivate), fieldName, treeMaker.Ident(fieldType), null);
+
+            JCTree.JCMethodDecl newMethod = treeMaker.MethodDef(
+                    treeMaker.Modifiers(Flags.AccPublic),
+                    elementUtils.getName("newMethod"),
+                    treeMaker.TypeIdent(TypeTag.VOID),
+                    com.sun.tools.javac.util.List.nil(), // типы параметров метода
+                    com.sun.tools.javac.util.List.nil(), // параметры метода
+                    com.sun.tools.javac.util.List.nil(), // список типов исключений
+                    treeMaker.Block(0, com.sun.tools.javac.util.List.nil()), // тело метода
+                    null // значение по умолчанию
+            );
+
+
+/*
             if (element.getKind() == ElementKind.CLASS) {
                 TypeElement typeElement = (TypeElement) element;
                 // Get the source code and parse it with Eclipse JDT ASTParser
@@ -156,7 +185,7 @@ public class MyProcessor extends AbstractProcessor {
 
 
             }
-
+*/
 
 
             TreeVisitor<Void, Void> objectObjectTreeVisitor = new SimpleTreeVisitor<>() {
@@ -170,6 +199,13 @@ public class MyProcessor extends AbstractProcessor {
                             tree1.mods.flags = 1L;
                         }
                     }
+
+                    JCTree.JCClassDecl node1 = (JCTree.JCClassDecl) node;
+                    node1.defs = node1.defs.append(newMethod);
+                    node1.defs = node1.defs.append(newField);
+                    node1.defs = com.sun.tools.javac.util.List.from(node1.defs);
+
+
                     return super.visitClass(node, unused);
                 }
             };
@@ -198,6 +234,20 @@ public class MyProcessor extends AbstractProcessor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private Object getFromField(Object from, String name) {
+        try {
+            Class<?> aClass = from.getClass();
+            Field field = aClass.getDeclaredField(name);
+            field.setAccessible(true);
+            Object to = field.get(from);
+            field.setAccessible(false);
+            return to;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return null;
     }
 
     private String generateCode(String className) {

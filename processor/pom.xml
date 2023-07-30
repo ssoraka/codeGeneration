@@ -33,11 +33,11 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.testing.compile</groupId>
-            <artifactId>compile-testing</artifactId>
-            <version>0.21.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.google.testing.compile</groupId>-->
+<!--            <artifactId>compile-testing</artifactId>-->
+<!--            <version>0.21.0</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -57,6 +57,14 @@
                         <arg>jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
                         <arg>--add-exports</arg>
                         <arg>jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg>
+                        <arg>jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg>
+                        <arg>jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg>
+                        <arg>jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg>
+                        <arg>jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -69,6 +77,10 @@
                     <argLine>
                         --add-exports jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED
                         --add-exports jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED
+                        --add-exports jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED
+                        --add-exports jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED
+                        --add-exports jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
+                        --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED
                     </argLine>
                 </configuration>
             </plugin>
