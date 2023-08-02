@@ -12,5 +12,8 @@ public class Test {
         System.out.println("hello world");
         System.out.println("hello world");
         System.out.println("hello world");
+
+        System.out.println(new Test().newField);
+        new Test().newMethod();
     }
 }
